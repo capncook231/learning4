@@ -3,6 +3,8 @@
 
 #include <iosfwd>
 
+constexpr int MAXLEN = 1024;
+
 class String {
 public:
     // constructs this string from a C string, defaults to empty string
@@ -13,6 +15,7 @@ public:
 
     // construct this string by moving from string s
     // String(String &&s);
+
     // swap buf between this string and s using std::swap, explained later
     void swap(String &s);
 
@@ -21,6 +24,7 @@ public:
 
     // assign to this string by moving from string s
     // String &operator=(String &&s);
+
     // allow indexing this string with notation s[i]
     char &operator[](int index);
 
@@ -38,6 +42,9 @@ public:
 
     // returns index into this string for first occurrence of s
     int indexOf(String s) const;
+
+	const char* get_buf();
+	void set_buf(const char *src);
 
     // relational operators for comparing this strings to another string
     bool operator==(String s) const;
