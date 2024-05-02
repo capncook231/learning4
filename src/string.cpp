@@ -1,5 +1,6 @@
 #include "string.hpp"
 #include <utility>
+#include <iostream>
 
 String::String(const char *s){
 	buf = strdup(s);
@@ -150,9 +151,11 @@ String& String::operator+=(String s){
 
 
 void String::print(std::ostream &out) const{
-	String temp = String(buf);
-
-	out<<temp;
+	int buf_len = strlen(buf);
+	for(int i =0; i<buf_len; ++i){
+		char x = buf[i];
+		out<<x;
+	}
 }
 
 void String::read(std::istream &in){
@@ -196,6 +199,17 @@ char* String::strcpy(char *dest, const char *src){
 	return dest;
 
 }
+
+
+
+
+
+
+
+
+
+
+
 
 //STR DUP STR DUP STR DUP STR DUP STR DUP STRDUP
 
