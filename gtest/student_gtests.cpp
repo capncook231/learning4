@@ -24,7 +24,17 @@ TEST(StringFunction, strcpy) {
 }
 
 TEST(StringFunction, strdup) {
-    EXPECT_TRUE(false);
+	char result[20];
+	String::strcpy(result, "hello");
+    EXPECT_EQ(String::strcpy(result, "foo"), result);
+    EXPECT_STREQ(result, "foo");
+
+    EXPECT_EQ(String::strcpy(result, "a"), result);
+    EXPECT_STREQ(result, "a");
+
+    EXPECT_EQ(String::strcpy(result, ""), result);
+    EXPECT_STREQ(result, "");
+
 }
 
 TEST(StringFunction, strncpy) {

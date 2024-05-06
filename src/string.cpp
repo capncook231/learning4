@@ -2,62 +2,78 @@
 #include <utility>
 #include <iostream>
 
-String::String(const char *s){
-	buf = strdup(s);
+String::String(const char *s)
+{
+	int len = strlen(s);
+	buf = new char[len+1];
+
+	for (int i = 0; i < len; ++i){
+		buf[i] = s[i];
+	}
+	buf[len] = '\0';
 }
 
-String::String(const String &s){
-	buf = strdup(s.buf);
-}
+//COPY CONSTRUCTOR
+String::String(const String &s)
+	{
+	int len = strlen(s.buf);
+	buf = new char[len+1];
 
+	for (int i = 0; i<len; ++i){
+		buf[i] = s.buf[i];
+	}
+	buf[len] = '\0';
+	}
 
-
-//String::String(String &&s);
+//MOVE CONSTRUCTOR
+String::String(String &&s)
+	: buf (s.buf)
+	{
+	delete[] s.buf;
+	s.buf = nullptr;
+	}
 
 void String::swap(String &s){
-	int s_len{strlen(s.buf)};
-	String temp = String(s_len+1);
-	temp.buf = strdup(s.buf);
-	delete[] s.buf;
-	//s.buf = nullptr;
-
-	s.buf = strdup(buf);
-	delete[] buf;
-	//buf = nullptr;
-
-	buf = strdup(temp.buf);
-	delete[] temp.buf;
-	//temp.buf = nullptr;
+	std::swap(buf, s.buf);
 }
 
-String& String::operator=(String s){
-	delete[] buf;
-	buf = strdup(s.buf);
+//COPY ASSIGNMENT
+String& String::operator=(const String &s){
+	if (&s == this) return *this;
+
+	int len = strlen(s.buf);
+	buf = new char[len+1];
+
+	for(int i = 0; i<len; ++i){
+		buf[i] = s.buf[i];
+	}
+	buf[len] = '\0';
 	return *this;
 }
 
-//String String::&operator=(String &&s);
+//MOVE ASSIGNMENT
+String& String::operator=(String &&s){
+	if(&s == this) return *this;
+	delete(buf);
+	swap(s);
+	s.buf = nullptr;
+	return *this;
+}
 
 char& String::operator[](int index){
 	int lim = strlen(buf);
-	if (index < lim && index>= 0) {
-		return buf[index];
-	}else if (index < 0 && lim != 0){
-		return buf[lim+index-1];
-	}else if (index >= lim && lim!=0){
-		return buf[index%lim];
-	}else throw("Out of bounds!");
+	if (index < lim && index>=0) return buf[index];
+	else if (index < 0 && lim != 0) return buf[lim+index-1];
+	else if (index >= lim && lim != 0) return buf[index%lim];
+	else return buf[0];
 }
 
 const char& String::operator[](int index) const{
 	int lim = strlen(buf);
-	if (index < lim && index>= 0) {
-		return buf[index];
-	}else if (index < 0 && lim != 0){
-		return buf[lim+index-1];
-	}else if (index >= lim && lim!=0){
-		return buf[index%lim];
-	}else throw("Out of bounds!");
+	if (index < lim && index>= 0) return buf[index];
+	else if (index < 0 && lim != 0) return buf[lim+index-1];
+	else if (index >= lim && lim!=0) return buf[index%lim];
+	else return buf[0];
 }
 
 int String::size() const{
@@ -74,93 +90,72 @@ String String::reverse() const{
 
 int String::indexOf(char c) const{
 	const char* temp = strchr(buf, c);
-	if (temp != nullptr) return temp - buf; else throw("Out of bounds!");
+	if (temp != nullptr) return temp - buf; else return -1;
 
 }
 
-int String::indexOf(String s) const{
+int String::indexOf(const String &s) const{
 	const char* temp = strstr(buf, s.buf);
-	if (temp != nullptr) return temp - buf; else throw("Out of bounds!");
+	if (temp != nullptr) return temp - buf; else return -1;
 
 }
 
-bool String::operator==(String s) const{
+bool String::operator==(const String &s) const{
 	if(strcmp(buf, s.buf) == 0) return true; else return false;	
 }
 
-bool String::operator!=(String s) const{
+bool String::operator!=(const String &s) const{
 	if(strcmp(buf, s.buf) != 0) return true; else return false;
 }
 
-bool String::operator>(String s) const{
+bool String::operator>(const String &s) const{
 	if(strcmp(buf, s.buf) > 0) return true; else return false;
 }
 
-bool String::operator<(String s) const{
+bool String::operator<(const String &s) const{
 	if(strcmp(buf, s.buf) < 0) return true; else return false;
 }
 
-bool String::operator<=(String s) const{
+bool String::operator<=(const String &s) const{
 	if(strcmp(buf, s.buf) <= 0) return true; else return false;
 }
 
-bool String::operator>=(String s) const{
+bool String::operator>=(const String &s) const{
 	if(strcmp(buf, s.buf) >= 0) return true; else return false;
 }
 
-String String::operator+(String s) const{
-	char * sup = new char[strlen(buf) + strlen(s.buf) + 1];
-	strcpy(sup, buf);
-	strcat(sup, s.buf);
-	return String(sup);
-
+String String::operator+(const String &s) const{
+	String sup = String(strlen(buf) + strlen(s.buf) + 1);
+	sup.buf = strcpy(sup.buf, buf);
+	sup.buf = strcat(sup.buf, s.buf);
+	
+	return sup;
 }
 
-String& String::operator+=(String s){
-	char *sup = new char[strlen(buf) + strlen(s.buf) + 1];
-	strcpy(sup, buf);
-	buf = strcat(sup, s.buf);
+
+String& String::operator+=(const String &s){
+	int total_len = strlen(buf) + strlen(s.buf);
+	String sup = String(total_len+1);
+	sup.buf = strcpy(sup.buf, buf);
+	sup.buf = strcat(sup.buf, s.buf);
+	buf = new char[total_len+1];
+	for(int i = 0; i<total_len; ++i){
+		buf[i] = sup.buf[i];
+	}
+	buf[total_len] = '\0';
+
 	return *this;
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 void String::print(std::ostream &out) const{
-	int buf_len = strlen(buf);
-	for(int i =0; i<buf_len; ++i){
-		char x = buf[i];
-		out<<x;
-	}
+	out << buf;
 }
 
 void String::read(std::istream &in){
-	String temp = String(MAXLEN);
-	in >> temp;
+	delete[] buf;
+	buf = new char[1024];
+	in.getline(buf, 1023);
 }
 
 String::~String(){
@@ -168,30 +163,18 @@ String::~String(){
 }
 
 
-const char* String::get_buf() {
-	return buf;
-}
 
-void String::set_buf(const char *src){
-	const char * temp_src = src;
-	char * temp_buf = buf;
 
-	while (*temp_src != '\0'){
-		*temp_buf = *temp_src;
-		++temp_buf; ++temp_src;
-	}
-	*temp_buf = '\0';
-}
+
 
 
 int String::strlen(const char *s){
-	int counter{0};
-	for(; s[counter] != '\0'; ++counter){}
-	return counter;
+	const char* temp = s;
+	for(; *temp != '\0'; ++temp) {}
+	return temp-s;
 }
 
 char* String::strcpy(char *dest, const char *src){
-	
 	int counter = 0;
 
 	for (; src[counter] != '\0'; ++counter) dest[counter] = src[counter];
@@ -200,42 +183,26 @@ char* String::strcpy(char *dest, const char *src){
 
 }
 
-
-
-
-
-
-
-
-
-
-
-
-//STR DUP STR DUP STR DUP STR DUP STR DUP STRDUP
-
 char* String::strdup(const char *src){
 	int src_len = strlen(src);
-	char* dup = new char[src_len + 1];
-	return strcpy(dup, src);
+	String *temp = new String(src_len + 1);
+	return strcpy(temp->buf, src);
 }
 
 char* String::strncpy(char *dest, const char *src, int n){
 	
 	int counter = 0;
-
 	for (; src[counter] != '\0' && counter < n; ++counter) dest[counter] = src[counter];
 	dest[counter] = '\0';
-
 	return dest;
 }
 
 
 
 char* String::strcat(char *dest, const char *src){
-	int counter{0};
 	int dest_counter = strlen(dest);
-
-	for(; src[counter] != '\0'; ++counter, ++dest_counter) dest[dest_counter] = src[counter];
+	const char *s = src;
+	for(; *s != '\0'; ++dest_counter, ++s) dest[dest_counter] = *s;
 		
 	dest[dest_counter] = '\0';
 
@@ -253,7 +220,6 @@ char* String::strncat(char *dest, const char *src, int n){
 
 	for (; src[counter] != '\0' && counter < n; ++counter, ++dest_counter) dest[dest_counter] = src[counter];
 	dest[dest_counter] = '\0';
-
 	return dest;
 }
 
@@ -261,6 +227,7 @@ char* String::strncat(char *dest, const char *src, int n){
 
 
 int String::strcmp(const char *left, const char *right){
+	
 	for (; *left != '\0' && *right != '\0' && *left == *right; ++left, ++right){}
 	return *left - *right;
 }
@@ -280,28 +247,28 @@ void String::reverse_cpy(char *dest, const char *src){
 }
 
 const char* String::strchr(const char *str, char c){
-	int str_len{strlen(str)};
 	int counter{0};
-	for (; counter < str_len && str[counter] != c; ++counter) {}
+	for (; str[counter] != '\0' && str[counter] != c; ++counter) {}
 	if (str[counter] == c) return &str[counter]; else return nullptr;
 }
 
 const char* String::strstr(const char *haystack, const char *needle){
-	int hay_len{strlen(haystack)};
-	int ned_len{strlen(needle)};
-	int counter{0};
-	for (; counter < hay_len - ned_len; ++counter){
+	int hay_size{strlen(haystack)};
+	int ned_size{strlen(needle)};
+	if (ned_size > hay_size || ned_size == 0) return nullptr;
+	for (int counter = 0; counter < hay_size - ned_size+1; ++counter){
 		if (strcmp(&haystack[counter], needle) == 0){
 			return &haystack[counter];
 		}
-	} return nullptr;
+	} 
+	return nullptr;
 }
 
 String::String(int length){
-	buf = {new char [length] {} };
+	buf = new char [length];
 }
 
-std::ostream &operator<<(std::ostream &out, String s){
+std::ostream &operator<<(std::ostream &out, const String& s){
 	s.print(out);
 	return out;
 }
