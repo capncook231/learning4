@@ -11,6 +11,7 @@ String::String(const char *s)
 		buf[i] = s[i];
 	}
 	buf[len] = '\0';
+	delete[] s;
 }
 
 //COPY CONSTRUCTOR
