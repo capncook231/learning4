@@ -30,7 +30,7 @@ String::String(const String &s)
 String::String(String &&s)
 	: buf (s.buf)
 	{
-	delete[] s.buf;
+	//delete[] s.buf;
 	s.buf = nullptr;
 	}
 
